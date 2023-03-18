@@ -1,0 +1,4 @@
+Value Fan_State (\S+)
+
+Start
+ ^Fantray\s+:\s+${Fan_State} -> Record

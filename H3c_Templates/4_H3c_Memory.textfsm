@@ -1,0 +1,7 @@
+Value TotalMemory (\d+)
+Value UsedMemory (\d+)
+
+Start
+ ^System\s+Total\s+Memory.*\s${TotalMemory}
+ ^Total\s+Used\s+Memory.*\s${UsedMemory} -> Record
+ ^Mem:\s+${TotalMemory}\s+${UsedMemory} -> Record

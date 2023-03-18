@@ -1,0 +1,15 @@
+Value P_Type (P\w+)
+Value Power_ID (\d)
+Value Power_State (\S+)
+
+Start
+ ^${P_Type}\s+${Power_ID}\s+Status:\s+${Power_State} -> Record
+ ^\s+${P_Type}${Power_ID}\s+${Power_State} -> Record
+ ^\s+${P_Type}\s+${Power_ID} -> Power_info
+ ^\s${P_Type}ID\sState -> Power_Type2_Info
+
+Power_info
+ ^\s+State\s+:\s+${Power_State} -> Record Start
+
+Power_Type2_Info
+ ^\s+${Power_ID}\s+${Power_State}\s+AC -> Record

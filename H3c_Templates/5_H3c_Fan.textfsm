@@ -1,0 +1,10 @@
+Value Fan_ID (\d)
+Value Fan_State (\w{6})
+
+Start
+ ^\s+${Fan_ID}\s+${Fan_State}\s+\d -> Record
+ ^\s+Fan\s+${Fan_ID}\s+State:\s+${Fan_State} -> Record
+ ^\s+F(an|AN)\s+${Fan_ID} -> Fan_info
+
+Fan_info
+ ^\s+State\s+:\s+${Fan_State} -> Record Start

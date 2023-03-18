@@ -1,0 +1,5 @@
+Value TotalMemory (\d+)
+Value UsedMemory (\d+)
+
+Start
+ ^Processor\s+Pool\s+Total:\s+${TotalMemory}\s+Used:\s+${UsedMemory}

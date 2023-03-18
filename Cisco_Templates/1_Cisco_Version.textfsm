@@ -1,0 +1,4 @@
+Value Version (Version\s+\S+\d)
+
+Start
+ ^.*${Version} -> Record EOF

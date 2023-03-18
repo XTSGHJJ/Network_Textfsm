@@ -1,0 +1,5 @@
+Value Power_ID (\d)
+Value Power_State (\S+)
+
+Start
+ ^PS${Power_ID}(\s+\S+){3}\s+${Power_State}(\s+\S+){2} -> Record

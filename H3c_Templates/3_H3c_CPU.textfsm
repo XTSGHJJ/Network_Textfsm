@@ -1,0 +1,8 @@
+# Value FiveSeconds (\d+%)
+# Value OneMinutes (\d+%)
+Value FiveMinutes (\d+%)
+
+Start
+#  ^\s+${FiveSeconds}.*5\s+seconds
+#  ^\s+${OneMinutes}.*1\s+minute
+ ^\s+${FiveMinutes}.*5\s+minutes -> Record

@@ -1,0 +1,4 @@
+Value UP_Time (.*)
+
+Start
+ ^.*uptime\s+is\s+${UP_Time} -> Record EOF
