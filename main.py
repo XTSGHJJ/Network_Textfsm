@@ -96,9 +96,9 @@ def main(file_path,temp_path):
             write_doc(dev_title_name,write_list)
 
 
-search_file_path = 'C:/Users/Chen/Desktop/巡检/2022年巡检/浙商银行/2022-12-28-网络巡检/临空港支行/'
-    # search_file_path = 'C:/Users/Chen/Desktop/2022年巡检/浙商银行/2022-9-27-网络巡检/武汉分行/'
-temp_file_path = 'C:/Users/Chen/Desktop/Python/Textfsm/H3c_Templates/'
+search_file_path = ''  #处理的文件目录
+    # search_file_path = ''
+temp_file_path = '' #模板目录
 
 main(search_file_path,temp_file_path)
 
