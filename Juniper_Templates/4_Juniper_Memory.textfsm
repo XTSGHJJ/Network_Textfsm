@@ -1,0 +1,5 @@
+Value UsedMemory (\d+)
+
+Start
+ ^\s+Total\s+memory.*(\s+${UsedMemory}\s+percent) -> Record
+ ^\s+Memory\s+utilization\s+${UsedMemory}\s+percent -> Record

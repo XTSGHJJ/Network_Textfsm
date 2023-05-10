@@ -1,0 +1,4 @@
+Value CPU_Usage (\d+)
+
+Start
+ ^\s+Idle\s+${CPU_Usage}\s+percent -> Record
