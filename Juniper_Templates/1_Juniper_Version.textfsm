@@ -2,4 +2,6 @@ Value Version (\S+)
 
 Start
  ^.*JUNOS\s+Software\s+Release\s+\[${Version}] -> Record EOF
+ ^.*Version\s${Version}, -> Record EOF
  ^JUNOS\s+Base\s+OS\s+Software\s+Suite\s+\[${Version}] -> Record
+

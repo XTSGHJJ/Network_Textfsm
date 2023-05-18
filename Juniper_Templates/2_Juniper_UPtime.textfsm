@@ -2,3 +2,4 @@ Value UP_Time (.*)
 
 Start
  ^.*Uptime\s+${UP_Time} -> Record EOF
+ ^.*uptime\s+is\s+${UP_Time} -> Record EOF
