@@ -1,7 +1,7 @@
 from textfsm import TextFSM
-from os import listdir
 from docx import Document
-from re import search
+from re import search,IGNORECASE
+from os import getcwd,listdir
 from PySimpleGUI import popup_get_folder,popup,popup_ok
 
 Document().save('./output_info.docx') #新建一个表格
@@ -64,18 +64,40 @@ def re_array(data_list):
     # if len(return_data) == 6:
     # [return_data.append(i) for i in re_data if i not in return_data]
     return return_data
-            
-def main(file_path,temp_path):
+
+def judge(txt):
+    pwd_dir=getcwd().replace('\\','/')
+    print(pwd_dir)
+    dev_type = {'Huawei\s+Technologies':'1','H3C\s+Comware':'2','cisco\s+IOS':'3','JUNOS\s+Software':'4'}
+    for  type in dev_type.keys():
+        a=search(type,txt,IGNORECASE)
+        if not a == None: 
+            if dev_type[type] == '3':
+                devname = search(r'hostname\s+(.*)',txt)
+                tem_path = pwd_dir + '/Cisco_Templates/'
+                return devname,tem_path
+            elif dev_type[type] == '4':
+                devname = search(r'.*system\s+host-name\s+(.*)',txt)
+                tem_path = pwd_dir + '/Juniper_Templates/'
+                return devname,tem_path
+            else:
+                devname = search(r'sysname\s+(.*)',txt)
+                tem_path = pwd_dir + '/H3c_Templates/'
+                return devname,tem_path
+    return 'Unknown' 
+
+def main(file_path):
     for search_file_name in listdir(file_path): #遍历目标文件夹
             data_list =[]
-            with open (file_path + search_file_name,'r', encoding='utf-8', errors='ignore') as file:
-                search_file = file.read()
-                dev_name = search(r'sysname\s+(.*)',search_file)
-                if not dev_name == None:
-                    dev_title_name = dev_name.group(1)
-                    print(dev_title_name)
-                else:
-                    dev_title_name = 'Unknown'
+            with open (file_path + search_file_name,'r', encoding='utf-8', errors='ignore') as file_text:
+                search_file = file_text.read()
+                judge_val=judge(search_file)
+                if judge_val == 'Unknown':
+                    continue
+                dev_name=judge_val[0]             
+                dev_title_name = dev_name.group(1)
+                temp_path = judge_val[1]
+
             for temp_file_name in listdir(temp_path):
                 with open(temp_path + temp_file_name, encoding='utf8') as textfsm_file:
                     template = TextFSM(textfsm_file)
@@ -84,23 +106,25 @@ def main(file_path,temp_path):
                         data=[['Not Found']]
                     for i in data:
                         data_list.append(i)
-            write_data =[]
-            for i in data_list:
-                if i[0] == 'Not Found':
-                    write_data.append(i)
-                elif i not in write_data:
-                    write_data.append(i)
+            
+            # write_data =[]
+            # print(data_list)
+            # for i in data_list:
+            #     if i[0] == 'Not Found':
+            #         write_data.append(i)
+            #     elif i not in write_data:
+            #         write_data.append(i)
             # print(write_data)
+            print(data_list)
             write_list = re_array(data_list)
-            # print(write_list)
+            print(write_list)
             write_doc(dev_title_name,write_list)
 
 
-search_file_path = ''  #处理的文件目录
-    # search_file_path = ''
-temp_file_path = '' #模板目录
 
-main(search_file_path,temp_file_path)
+search_file_path = 'C:/Users/chen/Desktop/Python/Network_Textfsm/testfile/' #模板目录
+
+main(search_file_path)
 
 
 # if __name__ == '__main__':
