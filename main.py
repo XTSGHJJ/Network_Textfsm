@@ -67,7 +67,6 @@ def re_array(data_list):
 
 def judge(txt):
     pwd_dir=getcwd().replace('\\','/')
-    print(pwd_dir)
     dev_type = {'Huawei\s+Technologies':'1','H3C\s+Comware':'2','cisco\s+IOS':'3','JUNOS\s+Software':'4'}
     for  type in dev_type.keys():
         a=search(type,txt,IGNORECASE)
