@@ -1,0 +1,4 @@
+Value SN (\S+)
+
+Start
+ ^DEVICE_SERIAL_NUMBER\s+:\s+${SN} -> Record EOF
