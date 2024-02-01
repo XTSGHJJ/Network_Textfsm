@@ -8,23 +8,24 @@ Document().save('./output_info.docx') #新建一个表格
 
 #write_doc函数用于把最终结果写入doc文档
 def write_doc(title_name,data_info):
+    NUMBER=7  #行数
     doc = Document('./output_info.docx')      # 打开新建的表格
     doc.add_heading(title_name,level = 4)  # 标题序号1~9
-    table = doc.add_table(rows=7,cols=2,style = "Table Grid")
+    table = doc.add_table(rows=NUMBER,cols=2,style = "Table Grid") #创建一个7行2列的表格
     # 设置表格头
     #rows[0].cells就是表示整个第一行
     list_title = ['设备序列号','版本','运行时间','CPU利用率','内存利用率','风扇状态','电源状态'] 
-    for i in range(7):
-        hdr_cells = table.rows[i].cells
-        hdr_cells[0].text = list_title[i]
+    for i in range(NUMBER):
+        hdr_cells = table.rows[i].cells #读取每一行
+        hdr_cells[0].text = list_title[i] #每一行的第一个单元格赋值
    #避免写入超过索引长度
-    if len(data_info) < 7:
+    if len(data_info) < NUMBER:
         while True:
             data_info.append('padding')
-            if len(data_info) > 7:
+            if len(data_info) > NUMBER:
                 break   
     #写入数据           
-    for x in range(7):
+    for x in range(NUMBER):
         row_cells = table.rows[x].cells
         for y in range(1,2):
             row_cells[y].text = data_info[x]      
