@@ -21,21 +21,22 @@ def move_element_after(element, paragraph): #element是表格或者标题的内�
         paragraph._p.addnext(element._element)
 
 #创建设备硬件状态表
-def device_status_table (file_numb,dev_name,table_title,find_tag):
-    print(find_tag,table_title)
-    print(type(find_tag),type(table_title))
+def device_status_table (dev_name,table_title,find_tag):
+    file_numb = len(dev_name) #统计行数,几台设备就几行
+    title_num = len(table_title) #统计列数,几个标题就几列
     for doc_par in doc.paragraphs:
         if findall(find_tag,doc_par.text):
-            dst_table= doc.add_table(rows=file_numb+1,cols=4,style = "Table Grid")
+            #生成一个file_numb+1行，title_num列的表格
+            dst_table= doc.add_table(rows=file_numb+1,cols=title_num,style = "Table Grid")
             # table_title = ['设备名','主引擎指示灯状态','电源指示灯状态','风扇指示灯状态']
             for table_num in range(file_numb+1):
                 if table_num == 0:
                     title_hdr = dst_table.rows[table_num].cells
-                    for title_cont in range(4):
+                    for title_cont in range(title_num):
                         title_hdr[title_cont].text = table_title[title_cont]
                 else:
                     table_hdr = dst_table.rows[table_num].cells
-                    for table_cont in range(4):
+                    for table_cont in range(title_num):
                         if table_cont == 0:
                             table_hdr[table_cont].text = dev_name[table_num-1]
                         else:
@@ -43,18 +44,19 @@ def device_status_table (file_numb,dev_name,table_title,find_tag):
             move_element_after(dst_table,doc_par)
             break
 
-#每个设备生成一个表格
-def dev_run_info_tabl(title_name,data_info):
+#生成每个设备的运行信息
+def dev_run_info_tabl(title_name,data_info,list_title):
+    dev_run_title_num = len(list_title)
     title=doc.add_heading(title_name,level = 4)  # 标题序号1~9
-    table = doc.add_table(rows=6,cols=2,style = "Table Grid") #添加表格
+    table = doc.add_table(rows=dev_run_title_num,cols=2,style = "Table Grid") #添加表格
     # 设置表格头
     #rows[0].cells就是表示整个第一行
-    list_title = ['版本','运行时间','CPU利用率','内存利用率','风扇状态','电源状态'] 
-    for i in range(6):
+    # list_title = ['版本','运行时间','CPU利用率','内存利用率','风扇状态','电源状态'] 
+    for i in range(dev_run_title_num):
         hdr_cells = table.rows[i].cells
         hdr_cells[0].text = list_title[i]
     #写入数据
-    for x in range(6):
+    for x in range(dev_run_title_num):
         row_cells = table.rows[x].cells
         for y in range(1,2):
             row_cells[y].text = data_info[x]
@@ -74,9 +76,8 @@ def re_array(data_list):
         #针对风扇和电源，会匹配到多个信息的设备进行处理
         else:
             #临时处理运行时间和型号部分
-            if len(i) == 2 and i[0].isdigit():
+            if len(i) == 2 and i[0].isdigit():  #isdigit检测字符串是否为纯数字
                 re_data.append(i[0])
-
 
             if i[0].isdigit() and i[1].isdigit():
                 mem_count = mem_count + 1
@@ -114,8 +115,8 @@ def judge(txt):
     pwd_dir=getcwd().replace('\\','/')
     dev_type = {'Huawei\s+Technologies':'1','H3C\s+Comware':'2','Cisco':'3','JUNOS\s+Software':'4'}
     for  type in dev_type.keys():
-        a=search(type,txt,IGNORECASE)
-        if not a == None: 
+        dev_mod = search(type,txt,IGNORECASE)  #搜索特定标识判断设备厂商
+        if not dev_mod == None: 
             if dev_type[type] == '3':
                 devname = search(r'.*hostname\s+(.*)',txt)
                 if devname == None:
@@ -133,8 +134,8 @@ def judge(txt):
     return 'Unknown' 
 
 def main(file_path):
-    file_num = len(listdir(file_path))
     dev_name_list = [] #设备名列表
+    dev_run_info_title = ['设备型号','版本','运行时间','CPU利用率','内存利用率','风扇状态','电源状态'] 
     for search_file_name in listdir(file_path): #遍历目标文件夹
         data_list = [] #获取的内容
         with open (file_path + search_file_name,'r', encoding='utf-8', errors='ignore') as file_text:
@@ -149,20 +150,21 @@ def main(file_path):
             with open(temp_path + temp_file_name, encoding='utf8') as textfsm_file:
                 template = TextFSM(textfsm_file)
                 data = template.ParseText(search_file) #使用模板获取文本信息
-
+                
                 if len(data) == 0:
                     data=[['Not Found']]
                 for i in data:
                     data_list.append(i)
+        print(data_list)
         write_list = re_array(data_list) #整合数据
-        dev_run_info_tabl(dev_title_name,write_list) #生成表格信息
+        print(write_list)
+        dev_run_info_tabl(dev_title_name,write_list,dev_run_info_title) #生成表格信息
 
     dev_hd_table_title = ['设备名','主引擎指示灯状态','电源指示灯状态','风扇指示灯状态']
     dev_run_table_title = ['设备名','电源运行状态','风扇运行状态','Log日志分析']
     dev_tab_tit = {'表格1':dev_hd_table_title,'表格2':dev_run_table_title}
     for tag,tab_tit in dev_tab_tit.items():
-        print(tag,tab_tit)
-        device_status_table(file_num,dev_name_list,tab_tit,tag)
+        device_status_table(dev_name_list,tab_tit,tag)
     doc.save('./ABC_output.docx')
 
 # search_file_path = 'C:/Users/chen/Desktop/Python/Network_Textfsm/testfile/' #模板目录

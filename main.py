@@ -8,20 +8,27 @@ Document().save('./output_info.docx') #新建一个表格
 
 #write_doc函数用于把最终结果写入doc文档
 def write_doc(title_name,data_info):
+    NUMBER=7  #行数
     doc = Document('./output_info.docx')      # 打开新建的表格
     doc.add_heading(title_name,level = 4)  # 标题序号1~9
-    table = doc.add_table(rows=6,cols=2,style = "Table Grid")
+    table = doc.add_table(rows=NUMBER,cols=2,style = "Table Grid") #创建一个7行2列的表格
     # 设置表格头
     #rows[0].cells就是表示整个第一行
-    list_title = ['版本','运行时间','CPU利用率','内存利用率','风扇状态','电源状态'] 
-    for i in range(6):
-        hdr_cells = table.rows[i].cells
-        hdr_cells[0].text = list_title[i]
-    #写入数据
-    for x in range(6):
+    list_title = ['设备序列号','版本','运行时间','CPU利用率','内存利用率','风扇状态','电源状态'] 
+    for i in range(NUMBER):
+        hdr_cells = table.rows[i].cells #读取每一行
+        hdr_cells[0].text = list_title[i] #每一行的第一个单元格赋值
+   #避免写入超过索引长度
+    if len(data_info) < NUMBER:
+        while True:
+            data_info.append('padding')
+            if len(data_info) > NUMBER:
+                break   
+    #写入数据           
+    for x in range(NUMBER):
         row_cells = table.rows[x].cells
         for y in range(1,2):
-            row_cells[y].text = data_info[x]
+            row_cells[y].text = data_info[x]      
     doc.save('./output_info.docx')
 
 #处理匹配到的信息，方便写入doc
@@ -33,7 +40,7 @@ def re_array(data_list):
             re_data.append(i[0])
         #针对风扇和电源，会匹配到多个信息的设备进行处理
         else:
-            if i[0].isdigit() and i[1].isdigit():
+            if i[0].isdigit() and i[1].isdigit(): #判断内容是否为纯数字
                 mem_count = mem_count + 1
                 memory_value = int(i[1]) / int(i[0]) * 100  #内存使用率,已使用内存 / 总共内存
                 mem_precent = str("{:.2f}".format(memory_value)) + '%'
@@ -67,12 +74,14 @@ def re_array(data_list):
 
 def judge(txt):
     pwd_dir=getcwd().replace('\\','/')
-    dev_type = {'Huawei\s+Technologies':'1','H3C\s+Comware':'2','cisco\s+IOS':'3','JUNOS\s+Software':'4'}
+    dev_type = {'Huawei\s+Technologies':'1','H3C\s+Comware':'2','Cisco':'3','JUNOS.*Software.*':'4'}
     for  type in dev_type.keys():
         a=search(type,txt,IGNORECASE)
         if not a == None: 
             if dev_type[type] == '3':
-                devname = search(r'hostname\s+(.*)',txt)
+                devname = search(r'.*hostname\s+(.*)',txt)
+                if devname == None:
+                    devname = search(r'(.*)#',txt)
                 tem_path = pwd_dir + '/Cisco_Templates/'
                 return devname,tem_path
             elif dev_type[type] == '4':
@@ -93,10 +102,11 @@ def main(file_path):
                 judge_val=judge(search_file)
                 if judge_val == 'Unknown':
                     continue
-                dev_name=judge_val[0]             
-                dev_title_name = dev_name.group(1)
+                dev_name=judge_val[0].group(1)
+                # print(dev_name) #打印设备名
                 temp_path = judge_val[1]
-
+                
+            #读取模板进行信息匹配
             for temp_file_name in listdir(temp_path):
                 with open(temp_path + temp_file_name, encoding='utf8') as textfsm_file:
                     template = TextFSM(textfsm_file)
@@ -114,28 +124,28 @@ def main(file_path):
             #     elif i not in write_data:
             #         write_data.append(i)
             # print(write_data)
-            print(data_list)
+            # print(data_list)
             write_list = re_array(data_list)
             print(write_list)
-            write_doc(dev_title_name,write_list)
+            write_doc(dev_name,write_list)
 
 
 
-search_file_path = 'C:/Users/chen/Desktop/Python/Network_Textfsm/testfile/' #模板目录
+# search_file_path = 'C:/Users/chen/Desktop/Python/Network_Textfsm/testfile/' #模板目录
 
-main(search_file_path)
+# main(search_file_path)
 
 
-# if __name__ == '__main__':
-#     file_path = popup_get_folder("Select File Path Folder")
-#     temp_path = popup_get_folder("Select Tempalte Path Folder")
-#     if not file_path:
-#         popup("Cancel", "No folder selected")
-#         raise SystemExit("Cancelling: no folder selected")
-#     elif not temp_path:
-#         popup("Cancel", "No folder selected")
-#         raise SystemExit("Cancelling: no folder selected")
-#     main(file_path + '/' , temp_path + '/')
-#     popup_ok('Successfully Completed!')
-    # print('==========' + '\n' + '执行完毕！' + '\n' + '==========')
+if __name__ == '__main__':
+    file_path = popup_get_folder("Select File Path Folder")
+    # temp_path = popup_get_folder("Select Tempalte Path Folder")
+    if not file_path:
+        popup("Cancel", "No folder selected")
+        raise SystemExit("Cancelling: no folder selected")
+    # elif not temp_path:
+    #     popup("Cancel", "No folder selected")
+    #     raise SystemExit("Cancelling: no folder selected")
+    main(file_path + '/')
+    popup_ok('Successfully Completed!')
+    print('==========' + '\n' + '执行完毕！' + '\n' + '==========')
 
